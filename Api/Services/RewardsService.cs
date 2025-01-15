@@ -10,10 +10,12 @@ public class RewardsService : IRewardsService
     private const double StatuteMilesPerNauticalMile = 1.15077945;
     private readonly int _defaultProximityBuffer = 10;
     private int _proximityBuffer;
-    private readonly int _attractionProximityRange = 200;
+    private readonly int _attractionProximityRange = 20000;
     private readonly IGpsUtil _gpsUtil;
     private readonly IRewardCentral _rewardsCentral;
     private static int count = 0;
+    public Dictionary<Attraction, double> closestAttraction = new Dictionary<Attraction, double>();
+
 
     public RewardsService(IGpsUtil gpsUtil, IRewardCentral rewardCentral)
     {
@@ -55,9 +57,11 @@ public class RewardsService : IRewardsService
 
     public bool IsWithinAttractionProximity(Attraction attraction, Locations location)
     {
-        Console.WriteLine(GetDistance(attraction, location));
-        return GetDistance(attraction, location) <= _attractionProximityRange;
+        double attractionDistance = GetDistance(attraction, location);
+        closestAttraction[attraction] = attractionDistance;
+        return true;
     }
+
 
     private bool NearAttraction(VisitedLocation visitedLocation, Attraction attraction)
     {

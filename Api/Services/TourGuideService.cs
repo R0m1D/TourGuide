@@ -6,7 +6,9 @@ using TourGuide.LibrairiesWrappers.Interfaces;
 using TourGuide.Services.Interfaces;
 using TourGuide.Users;
 using TourGuide.Utilities;
+using TourGuide.Services;
 using TripPricer;
+using System.Collections.Generic;
 
 namespace TourGuide.Services;
 
@@ -20,6 +22,8 @@ public class TourGuideService : ITourGuideService
     private readonly Dictionary<string, User> _internalUserMap = new();
     private const string TripPricerApiKey = "test-server-api-key";
     private bool _testMode = true;
+    private readonly List<KeyValuePair<Attraction, double>> closestAttractions = new List<KeyValuePair<Attraction, double>>();
+
 
     public TourGuideService(ILogger<TourGuideService> logger, IGpsUtil gpsUtil, IRewardsService rewardsService, ILoggerFactory loggerFactory)
     {
@@ -92,17 +96,31 @@ public class TourGuideService : ITourGuideService
 
     public List<Attraction> GetNearByAttractions(VisitedLocation visitedLocation)
     {
-        List<Attraction> nearbyAttractions = new ();
+        // Liste temporaire pour stocker les attractions avec leurs distances
+        List<KeyValuePair<Attraction, double>> closestAttractions = new();
+
+        // Calculer la distance pour chaque attraction et la stocker
         foreach (var attraction in _gpsUtil.GetAttractions())
         {
-            if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
-            {
-                nearbyAttractions.Add(attraction);
-            }
+            double distance = _rewardsService.GetDistance(attraction, visitedLocation.Location);
+            closestAttractions.Add(new KeyValuePair<Attraction, double>(attraction, distance));
+        }
+
+        // Trier les attractions par distance croissante
+        closestAttractions = closestAttractions.OrderBy(kvp => kvp.Value).ToList();
+
+        // Préparer la liste des attractions les plus proches
+        List<Attraction> nearbyAttractions = new();
+
+        // Ajouter jusqu'à 5 attractions les plus proches
+        for (int i = 0; i < Math.Min(5, closestAttractions.Count); i++)
+        {
+            nearbyAttractions.Add(closestAttractions[i].Key);
         }
 
         return nearbyAttractions;
     }
+
 
     private void AddShutDownHook()
     {
