@@ -88,6 +88,7 @@ public class TourGuideService : ITourGuideService
 
     public VisitedLocation TrackUserLocation(User user)
     {
+
         VisitedLocation visitedLocation = _gpsUtil.GetUserLocation(user.UserId);
         user.AddToVisitedLocations(visitedLocation);
         _rewardsService.CalculateRewards(user);
@@ -100,7 +101,8 @@ public class TourGuideService : ITourGuideService
         List<KeyValuePair<Attraction, double>> closestAttractions = new();
 
         // Calculer la distance pour chaque attraction et la stocker
-        foreach (var attraction in _gpsUtil.GetAttractions())
+        var attractions = _gpsUtil.GetAttractionsAsync().Result;
+        foreach (var attraction in attractions)
         {
             double distance = _rewardsService.GetDistance(attraction, visitedLocation.Location);
             closestAttractions.Add(new KeyValuePair<Attraction, double>(attraction, distance));
