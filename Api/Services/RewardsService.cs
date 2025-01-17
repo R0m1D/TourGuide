@@ -51,19 +51,17 @@ public class RewardsService : IRewardsService
                     if (NearAttraction(visitedLocation, attraction))
                     {
                         // Crée une tâche pour chaque itération et ajoute-la à la liste
-                        tasks.Add(Task.Run(async () =>
-                        {
-                            var rewardPoints = GetRewardPoints(attraction, user);
-                            user.AddUserReward(new UserReward(visitedLocation, attraction, rewardPoints));
 
-                        }));
+                        Console.WriteLine("markpoint");
+                        var rewardPoints = GetRewardPoints(attraction, user);
+                        user.AddUserReward(new UserReward(visitedLocation, attraction, rewardPoints));
+                    } ;
                     }
                 }
             }
-        }
+   
 
         // Attendre que toutes les tâches soient terminées
-        await Task.WhenAll(tasks);
     }
 
     public bool IsWithinAttractionProximity(Attraction attraction, Locations location)

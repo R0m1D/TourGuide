@@ -53,9 +53,9 @@ public class TourGuideService : ITourGuideService
         return user.UserRewards;
     }
 
-    public VisitedLocation GetUserLocation(User user)
+    public async Task<VisitedLocation> GetUserLocationAsync(User user)
     {
-        return user.VisitedLocations.Any() ? user.GetLastVisitedLocation() : TrackUserLocation(user);
+        return user.VisitedLocations.Any() ? user.GetLastVisitedLocation() : await TrackUserLocationAsync(user);
     }
 
     public User GetUser(string userName)
@@ -86,14 +86,23 @@ public class TourGuideService : ITourGuideService
         return providers;
     }
 
+    public async Task<VisitedLocation> TrackUserLocationAsync(User user)
+    {
+        // Exécution dans un thread séparé
+        VisitedLocation visitedLocation = await Task.Run(() => _gpsUtil.GetUserLocation(user.UserId));
+        user.AddToVisitedLocations(visitedLocation);
+        await _rewardsService.CalculateRewards(user);
+        return visitedLocation;
+    }
     public VisitedLocation TrackUserLocation(User user)
     {
-
-        VisitedLocation visitedLocation = _gpsUtil.GetUserLocation(user.UserId);
+        // Exécution dans un thread séparé
+        VisitedLocation visitedLocation =  _gpsUtil.GetUserLocation(user.UserId);
         user.AddToVisitedLocations(visitedLocation);
         _rewardsService.CalculateRewards(user);
         return visitedLocation;
     }
+
 
     public List<Attraction> GetNearByAttractions(VisitedLocation visitedLocation)
     {

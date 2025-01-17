@@ -35,7 +35,7 @@ public class User
 
     public void AddUserReward(UserReward userReward)
     {
-        if (!UserRewards.Exists(r => r.Attraction.AttractionName == userReward.Attraction.AttractionName))
+        if (! UserRewards.Exists(r => r.Attraction.AttractionName == userReward.Attraction.AttractionName))
         {
             UserRewards.Add(userReward);
         }

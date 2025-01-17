@@ -26,19 +26,9 @@ public class RewardServiceTest : IClassFixture<DependencyFixture>
         var user = new User(Guid.NewGuid(), "jon", "000", "jon@tourGuide.com");
         var attraction = _fixture.GpsUtil.GetAttractions().First();
         user.AddToVisitedLocations(new VisitedLocation(user.UserId, attraction, DateTime.Now));
-
-        _fixture.TourGuideService.TrackUserLocation(user);
-
-        // Calculez les récompenses de manière asynchrone
-        await _fixture.RewardsService.CalculateRewards(user);
-
-        // Obtenez les récompenses de l'utilisateur
+        await _fixture.TourGuideService.TrackUserLocationAsync(user);
         var userRewards = user.UserRewards;
-
-        // Arrêtez le suivi
         _fixture.TourGuideService.Tracker.StopTracking();
-
-        // Vérifiez le nombre de récompenses
         Assert.True(userRewards.Count == 1);
     }
 
