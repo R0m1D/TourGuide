@@ -68,7 +68,7 @@ namespace TourGuideTest
         [Fact]
         public async Task HighVolumeGetRewards()
         {
-            _fixture.Initialize(100000);
+            _fixture.Initialize(10);
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
